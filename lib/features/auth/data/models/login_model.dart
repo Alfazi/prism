@@ -32,11 +32,11 @@ class LoginResponse extends Equatable {
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
-      code: json['code'] as String,
-      status: json['status'] as String,
-      message: json['message'] as String,
-      user: UserModel.fromJson(json['user'] as Map<String, dynamic>),
-      token: json['token'] as String,
+      code: json['code'] as String? ?? '200',
+      status: json['status'] as String? ?? 'OK',
+      message: json['message'] as String? ?? '',
+      user: UserModel.fromJson(json['user'] as Map<String, dynamic>? ?? {}),
+      token: json['token'] as String? ?? '',
     );
   }
 

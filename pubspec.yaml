@@ -52,6 +52,7 @@ dependencies:
   
   # Utilitas
   intl: ^0.18.1
+  timeago: ^3.5.0
 
 dev_dependencies:
   flutter_test:

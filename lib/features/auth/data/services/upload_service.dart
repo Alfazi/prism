@@ -16,7 +16,10 @@ class UploadService {
             ),
           );
 
-  Future<String> uploadImage(File imageFile) async {
+  Future<String> uploadImage({
+    required File imageFile,
+    required String token,
+  }) async {
     try {
       // Create multipart form data
       final formData = FormData.fromMap({
@@ -29,7 +32,9 @@ class UploadService {
       final response = await _dio.post(
         ApiConstants.uploadImage,
         data: formData,
-        options: Options(headers: ApiConstants.getMultipartHeaders()),
+        options: Options(
+          headers: ApiConstants.getMultipartHeaders(token: token),
+        ),
       );
 
       // Extract URL from response

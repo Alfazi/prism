@@ -7,6 +7,7 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_event.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/login_page.dart';
+import 'features/feed/presentation/pages/main_scaffold.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,85 +51,14 @@ class MyApp extends StatelessWidget {
               );
             }
 
-            // If authenticated, show home page (TODO: implement home page)
+            // If authenticated, show main scaffold with bottom navigation
             if (state.status == AuthStatus.authenticated) {
-              return const _TemporaryHomePage();
+              return const MainScaffold();
             }
 
             // Otherwise show login page
             return const LoginPage();
           },
-        ),
-      ),
-    );
-  }
-}
-
-// Temporary home page until you implement the actual home page
-class _TemporaryHomePage extends StatelessWidget {
-  const _TemporaryHomePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF050505),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text('Prism Home'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthBloc>().add(const LogoutRequested());
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome to Prism!',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'You are successfully logged in',
-              style: TextStyle(color: Colors.grey[400], fontSize: 16),
-            ),
-            const SizedBox(height: 32),
-            BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                if (state.user != null) {
-                  return Column(
-                    children: [
-                      Text(
-                        'Name: ${state.user!.name}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Username: ${state.user!.username}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Email: ${state.user!.email}',
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
         ),
       ),
     );

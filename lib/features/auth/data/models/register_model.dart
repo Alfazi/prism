@@ -67,10 +67,10 @@ class RegisterResponse extends Equatable {
 
   factory RegisterResponse.fromJson(Map<String, dynamic> json) {
     return RegisterResponse(
-      code: json['code'] as String,
-      status: json['status'] as String,
-      message: json['message'] as String,
-      data: UserModel.fromJson(json['data'] as Map<String, dynamic>),
+      code: json['code'] as String? ?? '200',
+      status: json['status'] as String? ?? 'OK',
+      message: json['message'] as String? ?? '',
+      data: UserModel.fromJson(json['data'] as Map<String, dynamic>? ?? {}),
     );
   }
 

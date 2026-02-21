@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../feed/presentation/pages/main_scaffold.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -72,11 +73,13 @@ class _RegisterPageState extends State<RegisterPage> {
               const SnackBar(
                 content: Text('Registration successful!'),
                 backgroundColor: Colors.green,
+                duration: Duration(seconds: 1),
               ),
             );
-            // After successful registration and auto-login, go back to login page
-            // or navigate to home
-            Navigator.of(context).pop();
+            // After successful registration and auto-login, navigate to home
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const MainScaffold()),
+            );
           }
         },
         child: Stack(

@@ -37,6 +37,13 @@ class ApiConstants {
   static const String getStoryUrl = '/story';
   static const String storyViewsUrl = '/story-views';
 
+  // User/Profile endpoints
+  static const String getUserUrl = '/user';
+  static const String updateProfileUrl = '/update-profile';
+  static const String myFollowingUrl = '/my-following';
+  static const String myFollowersUrl = '/my-followers';
+  static const String userPostsUrl = '/users-post';
+
   // Headers
   static Map<String, String> getHeaders({String? token}) {
     final headers = {'Content-Type': 'application/json', 'apiKey': apiKey};

@@ -18,7 +18,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
   final _imagePicker = ImagePicker();
   File? _selectedImage;
   bool _isUploading = false;
-  String? _uploadedImageUrl;
 
   @override
   void dispose() {
@@ -38,7 +37,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
       if (image != null) {
         setState(() {
           _selectedImage = File(image.path);
-          _uploadedImageUrl = null; // Reset uploaded URL
         });
       }
     } catch (e) {
@@ -53,58 +51,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_selectedImage == null) return;
-
-    setState(() {
-      _isUploading = true;
-    });
-
-    try {
-      final token = await GetIt.instance<AuthLocalService>().getToken();
-      if (token == null) throw Exception('Not authenticated');
-
-      final uploadService = GetIt.instance<UploadService>();
-      final imageUrl = await uploadService.uploadImage(
-        imageFile: _selectedImage!,
-        token: token,
-      );
-
-      setState(() {
-        _uploadedImageUrl = imageUrl;
-        _isUploading = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Image uploaded successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Upload failed: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   Future<void> _createPost() async {
-    if (_uploadedImageUrl == null) {
+    if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please upload an image first'),
-          backgroundColor: Colors.orange,
+          content: Text('Please select an image'),
+          backgroundColor: Colors.red,
         ),
       );
       return;
@@ -128,10 +80,18 @@ class _CreatePostPageState extends State<CreatePostPage> {
       final token = await GetIt.instance<AuthLocalService>().getToken();
       if (token == null) throw Exception('Not authenticated');
 
+      // Upload image
+      final uploadService = GetIt.instance<UploadService>();
+      final imageUrl = await uploadService.uploadImage(
+        imageFile: _selectedImage!,
+        token: token,
+      );
+
+      // Create post
       final feedService = GetIt.instance<FeedApiService>();
       await feedService.createPost(
         token: token,
-        imageUrl: _uploadedImageUrl!,
+        imageUrl: imageUrl,
         caption: _captionController.text.trim(),
       );
 
@@ -145,10 +105,6 @@ class _CreatePostPageState extends State<CreatePostPage> {
         );
       }
     } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -156,6 +112,12 @@ class _CreatePostPageState extends State<CreatePostPage> {
             backgroundColor: Colors.red,
           ),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
       }
     }
   }
@@ -175,147 +137,140 @@ class _CreatePostPageState extends State<CreatePostPage> {
           'Create Post',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
         actions: [
-          if (_uploadedImageUrl != null && !_isUploading)
+          if (_selectedImage != null && !_isUploading)
             TextButton(
               onPressed: _createPost,
-              child: const Text(
-                'Share',
-                style: TextStyle(
-                  color: Color(0xFF00F2EA),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Color(0xFF00C2FF), Color(0xFFFF0055)],
+                ).createShader(bounds),
+                child: const Text(
+                  'Share',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image Preview
-            GestureDetector(
-              onTap: _isUploading ? null : _pickImage,
-              child: Container(
-                height: 400,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade900,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.1)),
-                ),
-                child: _selectedImage != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.add_photo_alternate_outlined,
-                            size: 64,
-                            color: Colors.grey.shade600,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Image Preview or Picker
+              GestureDetector(
+                onTap: _isUploading ? null : _pickImage,
+                child: Container(
+                  height: 500,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: Colors.grey.shade900,
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                  child: _selectedImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(_selectedImage!, fit: BoxFit.cover),
+                              if (_isUploading)
+                                Container(
+                                  color: Colors.black.withOpacity(0.5),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF00F2EA),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Tap to select an image',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 16,
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 80,
+                              height: 80,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFF00C2FF),
+                                    Color(0xFFFF0055),
+                                  ],
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.add_photo_alternate,
+                                color: Colors.white,
+                                size: 40,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Tap to select an image',
+                              style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-            // Upload Button
-            if (_selectedImage != null && _uploadedImageUrl == null)
-              ElevatedButton(
-                onPressed: _isUploading ? null : _uploadImage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF135bec),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // Caption Input
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade900.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.1),
+                    width: 1,
                   ),
                 ),
-                child: _isUploading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text(
-                        'Upload Image',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-              ),
-
-            // Success indicator
-            if (_uploadedImageUrl != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.withOpacity(0.3)),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 12),
-                    Text(
-                      'Image uploaded successfully!',
-                      style: TextStyle(color: Colors.green),
+                child: TextField(
+                  controller: _captionController,
+                  enabled: !_isUploading,
+                  maxLines: 4,
+                  maxLength: 500,
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Write a caption...',
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade500,
+                      fontSize: 14,
                     ),
-                  ],
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.all(16),
+                    counterStyle: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
                 ),
               ),
-
-            const SizedBox(height: 24),
-
-            // Caption Input
-            TextField(
-              controller: _captionController,
-              maxLines: 4,
-              maxLength: 500,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Write a caption...',
-                hintStyle: TextStyle(color: Colors.grey.shade600),
-                filled: true,
-                fillColor: Colors.grey.shade900.withOpacity(0.5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Color(0xFF00F2EA)),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

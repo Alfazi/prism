@@ -11,6 +11,7 @@ import '../../../story/presentation/bloc/story_event.dart';
 import '../../../story/presentation/widgets/story_rail.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../profile/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -187,23 +188,110 @@ class _HomePageState extends State<HomePage> {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ShaderMask(
-                                shaderCallback: (bounds) =>
-                                    const LinearGradient(
-                                      colors: [Colors.white, Colors.grey],
-                                    ).createShader(bounds),
-                                child: const Text(
-                                  'Prism',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: -0.5,
+                              // Profile Avatar Button
+                              BlocBuilder<AuthBloc, AuthState>(
+                                builder: (context, authState) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const ProfilePage(),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 32,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: const LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Color(0xFF00F2EA),
+                                            Color(0xFFFF0050),
+                                          ],
+                                        ),
+                                      ),
+                                      padding: const EdgeInsets.all(2),
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.black,
+                                        ),
+                                        child: ClipOval(
+                                          child:
+                                              authState
+                                                          .user
+                                                          ?.profilePictureUrl !=
+                                                      null &&
+                                                  authState
+                                                      .user!
+                                                      .profilePictureUrl!
+                                                      .isNotEmpty
+                                              ? Image.network(
+                                                  authState
+                                                      .user!
+                                                      .profilePictureUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Container(
+                                                          color: Colors
+                                                              .grey
+                                                              .shade800,
+                                                          child: const Icon(
+                                                            Icons.person,
+                                                            size: 16,
+                                                            color: Colors.white,
+                                                          ),
+                                                        );
+                                                      },
+                                                )
+                                              : Container(
+                                                  color: Colors.grey.shade800,
+                                                  child: const Icon(
+                                                    Icons.person,
+                                                    size: 16,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Prism Title (centered)
+                              Expanded(
+                                child: Center(
+                                  child: ShaderMask(
+                                    shaderCallback: (bounds) =>
+                                        const LinearGradient(
+                                          colors: [Colors.white, Colors.grey],
+                                        ).createShader(bounds),
+                                    child: const Text(
+                                      'Prism',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
+                              // Spacer to balance the profile avatar on the left
+                              const SizedBox(width: 32),
                             ],
                           ),
                         ),

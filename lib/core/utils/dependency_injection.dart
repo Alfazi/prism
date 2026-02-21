@@ -13,6 +13,8 @@ import '../../features/feed/presentation/bloc/explore_bloc.dart';
 import '../../features/feed/presentation/bloc/comment_bloc.dart';
 import '../../features/story/data/services/story_api_service.dart';
 import '../../features/story/presentation/bloc/story_bloc.dart';
+import '../../features/profile/data/services/profile_api_service.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -55,6 +57,8 @@ Future<void> setupDependencyInjection() async {
     () => UploadService(dio: getIt<Dio>()),
   );
 
+  getIt.registerLazySingleton<ProfileApiService>(() => ProfileApiService());
+
   // BLoCs
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(
@@ -88,6 +92,14 @@ Future<void> setupDependencyInjection() async {
     () => StoryBloc(
       storyApiService: getIt<StoryApiService>(),
       authLocalService: getIt<AuthLocalService>(),
+    ),
+  );
+
+  getIt.registerFactory<ProfileBloc>(
+    () => ProfileBloc(
+      profileApiService: getIt<ProfileApiService>(),
+      authLocalService: getIt<AuthLocalService>(),
+      feedApiService: getIt<FeedApiService>(),
     ),
   );
 }

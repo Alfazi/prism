@@ -158,7 +158,7 @@ class FeedApiService {
     }
   }
 
-  Future<PostModel> createPost({
+  Future<void> createPost({
     required String token,
     required String imageUrl,
     required String caption,
@@ -170,9 +170,7 @@ class FeedApiService {
         options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        return PostModel.fromJson(response.data['data']);
-      } else {
+      if (response.statusCode != 200) {
         throw Exception('Failed to create post');
       }
     } on DioException catch (e) {
@@ -184,7 +182,7 @@ class FeedApiService {
     }
   }
 
-  Future<PostModel> updatePost({
+  Future<void> updatePost({
     required String token,
     required String postId,
     required String imageUrl,
@@ -197,9 +195,7 @@ class FeedApiService {
         options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        return PostModel.fromJson(response.data['data']);
-      } else {
+      if (response.statusCode != 200) {
         throw Exception('Failed to update post');
       }
     } on DioException catch (e) {

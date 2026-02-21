@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../feed/presentation/pages/main_scaffold.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -53,14 +54,17 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
           } else if (state.status == AuthStatus.authenticated) {
-            // Navigate to home page (you'll need to implement this)
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Login successful!'),
                 backgroundColor: Colors.green,
+                duration: Duration(seconds: 1),
               ),
             );
-            // Navigator.of(context).pushReplacementNamed('/home');
+            // Navigate to home page
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const MainScaffold()),
+            );
           }
         },
         child: Stack(
@@ -195,25 +199,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // Forgot password
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // TODO: Implement forgot password
-                            },
-                            child: Text(
-                              'Forgot Password?',
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
 
                         // Login button
                         BlocBuilder<AuthBloc, AuthState>(

@@ -227,7 +227,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 BoxShadow(
                                   color: const Color(
                                     0xFF00F2EA,
-                                  ).withOpacity(0.3),
+                                  ).withValues(alpha: 0.3),
                                   blurRadius: 20,
                                   spreadRadius: 2,
                                 ),
@@ -280,7 +280,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   BoxShadow(
                                     color: const Color(
                                       0xFF00F2EA,
-                                    ).withOpacity(0.5),
+                                    ).withValues(alpha: 0.5),
                                     blurRadius: 10,
                                   ),
                                 ],
@@ -360,7 +360,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                             width: 1,
                           ),
                         ),
@@ -383,7 +383,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               fontSize: 12,
                             ),
                             filled: true,
-                            fillColor: Colors.white.withOpacity(0.03),
+                            fillColor: Colors.white.withValues(alpha: 0.03),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,

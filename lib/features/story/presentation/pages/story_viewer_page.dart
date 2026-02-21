@@ -202,7 +202,7 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withOpacity(0.7),
+                          Colors.black.withValues(alpha: 0.7),
                           Colors.transparent,
                         ],
                       ),
@@ -224,7 +224,9 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                           builder: (context, child) {
                             return LinearProgressIndicator(
                               value: _progressController.value,
-                              backgroundColor: Colors.white.withOpacity(0.3),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.3,
+                              ),
                               valueColor: const AlwaysStoppedAnimation<Color>(
                                 Colors.white,
                               ),
@@ -253,7 +255,7 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                                     story.user.profilePictureUrl ?? '',
                                   ),
                                   fit: BoxFit.cover,
-                                  onError: (_, __) {},
+                                  onError: (_, _) {},
                                 ),
                                 color: Colors.grey.shade700,
                               ),
@@ -276,7 +278,9 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                                   Text(
                                     _getTimeAgo(story.createdAt),
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.7),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.7,
+                                      ),
                                       fontSize: 12,
                                     ),
                                   ),
@@ -316,8 +320,8 @@ class _StoryViewerPageState extends State<StoryViewerPage>
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            Colors.black.withOpacity(0.8),
-                            Colors.black.withOpacity(0.3),
+                            Colors.black.withValues(alpha: 0.8),
+                            Colors.black.withValues(alpha: 0.3),
                             Colors.transparent,
                           ],
                         ),

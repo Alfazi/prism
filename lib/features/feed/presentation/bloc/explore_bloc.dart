@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/services/feed_api_service.dart';
+import '../../data/models/post_model.dart';
 import '../../../auth/data/services/auth_local_service.dart';
 import 'explore_event.dart';
 import 'explore_state.dart';
@@ -35,30 +36,44 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
         return;
       }
 
-      print('📱 Initial fetch explore posts...');
-      final response = await feedApiService.getExplorePosts(
-        token: token,
-        size: 10,
-        page: 1,
-      );
+      // Fetch pages until we get posts with images or run out of pages
+      List<PostModel> allPostsWithImages = [];
+      int currentPage = 1;
+      int totalPages = 1;
+      const int maxPagesToFetch = 10; // Safety limit
 
-      print('✅ Initial fetch received:');
-      print('   Posts: ${response.posts.length}');
-      print('   currentPage: ${response.currentPage}');
-      print('   totalPages: ${response.totalPages}');
-      print('   totalItems: ${response.totalItems}');
+      while (allPostsWithImages.isEmpty &&
+          currentPage <= totalPages &&
+          currentPage <= maxPagesToFetch) {
+        final response = await feedApiService.getExplorePosts(
+          token: token,
+          size: 10,
+          page: currentPage,
+        );
 
-      final hasMore =
-          response.totalPages > 0 && response.currentPage < response.totalPages;
+        totalPages = response.totalPages;
 
-      print('   hasMorePosts: $hasMore');
+        // Filter out posts without images
+        final postsWithImages = response.posts
+            .where((post) => post.imageUrl.isNotEmpty)
+            .toList();
+
+        if (postsWithImages.isNotEmpty) {
+          allPostsWithImages = postsWithImages;
+          break;
+        }
+
+        currentPage++;
+      }
+
+      final hasMore = currentPage < totalPages;
 
       emit(
         state.copyWith(
           status: ExploreStatus.success,
-          posts: response.posts,
-          currentPage: response.currentPage,
-          totalPages: response.totalPages,
+          posts: allPostsWithImages,
+          currentPage: currentPage,
+          totalPages: totalPages,
           hasMorePosts: hasMore,
         ),
       );
@@ -77,16 +92,7 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     Emitter<ExploreState> emit,
   ) async {
     // Debug: Check why load more might not be working
-    print('🔄 LoadMoreExplorePosts triggered');
-    print('   hasMorePosts: ${state.hasMorePosts}');
-    print('   currentPage: ${state.currentPage}');
-    print('   totalPages: ${state.totalPages}');
-    print('   status: ${state.status}');
-
     if (!state.hasMorePosts || state.status == ExploreStatus.loadingMore) {
-      print(
-        '   ❌ Blocked: hasMorePosts=${state.hasMorePosts}, status=${state.status}',
-      );
       return;
     }
 
@@ -95,42 +101,48 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
 
       final token = await authLocalService.getToken();
       if (token == null) {
-        print('   ❌ No token');
         return;
       }
 
-      final nextPage = state.currentPage + 1;
-      print('   📡 Fetching page $nextPage...');
+      // Fetch pages until we get posts with images or run out of pages
+      List<PostModel> newPostsWithImages = [];
+      int currentPage = state.currentPage + 1;
+      const int maxPagesToFetch = 10; // Safety limit
 
-      final response = await feedApiService.getExplorePosts(
-        token: token,
-        size: 10,
-        page: nextPage,
-      );
+      while (newPostsWithImages.isEmpty &&
+          currentPage <= state.totalPages &&
+          currentPage <= state.currentPage + maxPagesToFetch) {
+        final response = await feedApiService.getExplorePosts(
+          token: token,
+          size: 10,
+          page: currentPage,
+        );
 
-      print('   ✅ Received ${response.posts.length} posts');
-      print('   Response currentPage: ${response.currentPage}');
-      print('   Response totalPages: ${response.totalPages}');
+        // Filter out posts without images
+        final postsWithImages = response.posts
+            .where((post) => post.imageUrl.isNotEmpty)
+            .toList();
 
-      final updatedPosts = [...state.posts, ...response.posts];
+        if (postsWithImages.isNotEmpty) {
+          newPostsWithImages = postsWithImages;
+          break;
+        }
+
+        currentPage++;
+      }
+
+      final updatedPosts = [...state.posts, ...newPostsWithImages];
 
       emit(
         state.copyWith(
           status: ExploreStatus.success,
           posts: updatedPosts,
-          currentPage: response.currentPage,
-          totalPages: response.totalPages,
-          hasMorePosts:
-              response.posts.isNotEmpty &&
-              response.currentPage < response.totalPages,
+          currentPage: currentPage,
+          totalPages: state.totalPages,
+          hasMorePosts: currentPage < state.totalPages,
         ),
       );
-
-      print(
-        '   ✅ Updated: ${updatedPosts.length} total posts, hasMorePosts: ${response.posts.isNotEmpty && response.currentPage < response.totalPages}',
-      );
     } catch (e) {
-      print('   ❌ Error: $e');
       emit(
         state.copyWith(
           status: ExploreStatus.error,

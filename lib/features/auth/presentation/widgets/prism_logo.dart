@@ -25,8 +25,8 @@ class PrismLogo extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Colors.white.withOpacity(0.4),
-                    Colors.white.withOpacity(0.05),
+                    Colors.white.withValues(alpha: 0.4),
+                    Colors.white.withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.4, 0.6],
@@ -43,7 +43,7 @@ class PrismLogo extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -61,11 +61,14 @@ class PrismLogo extends StatelessWidget {
                 height: 1,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.white.withOpacity(0.5), Colors.transparent],
+                    colors: [
+                      Colors.white.withValues(alpha: 0.5),
+                      Colors.transparent,
+                    ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       blurRadius: 2,
                     ),
                   ],
@@ -84,13 +87,13 @@ class PrismLogo extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF00F2EA).withOpacity(0.6),
+                      const Color(0xFF00F2EA).withValues(alpha: 0.6),
                       Colors.transparent,
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00F2EA).withOpacity(0.3),
+                      color: const Color(0xFF00F2EA).withValues(alpha: 0.3),
                       blurRadius: 4,
                     ),
                   ],
@@ -109,13 +112,13 @@ class PrismLogo extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFFFF0050).withOpacity(0.6),
+                      const Color(0xFFFF0050).withValues(alpha: 0.6),
                       Colors.transparent,
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF0050).withOpacity(0.3),
+                      color: const Color(0xFFFF0050).withValues(alpha: 0.3),
                       blurRadius: 4,
                     ),
                   ],

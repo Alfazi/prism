@@ -15,6 +15,7 @@ import '../../features/story/data/services/story_api_service.dart';
 import '../../features/story/presentation/bloc/story_bloc.dart';
 import '../../features/profile/data/services/profile_api_service.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/user_profile_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -57,7 +58,9 @@ Future<void> setupDependencyInjection() async {
     () => UploadService(dio: getIt<Dio>()),
   );
 
-  getIt.registerLazySingleton<ProfileApiService>(() => ProfileApiService());
+  getIt.registerLazySingleton<ProfileApiService>(
+    () => ProfileApiService(dio: getIt<Dio>()),
+  );
 
   // BLoCs
   getIt.registerFactory<AuthBloc>(
@@ -97,6 +100,14 @@ Future<void> setupDependencyInjection() async {
 
   getIt.registerFactory<ProfileBloc>(
     () => ProfileBloc(
+      profileApiService: getIt<ProfileApiService>(),
+      authLocalService: getIt<AuthLocalService>(),
+      feedApiService: getIt<FeedApiService>(),
+    ),
+  );
+
+  getIt.registerFactory<UserProfileBloc>(
+    () => UserProfileBloc(
       profileApiService: getIt<ProfileApiService>(),
       authLocalService: getIt<AuthLocalService>(),
       feedApiService: getIt<FeedApiService>(),

@@ -6,6 +6,7 @@ import '../bloc/explore_event.dart';
 import '../bloc/explore_state.dart';
 import '../widgets/feed_card.dart';
 import 'comments_page.dart';
+import '../../../profile/presentation/pages/user_profile_page.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -239,7 +240,13 @@ class _ExplorePageState extends State<ExplorePage> {
                                 );
                               },
                               onUserTap: () {
-                                // TODO: Navigate to user profile
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        UserProfilePage(userId: post.user.id),
+                                  ),
+                                );
                               },
                             );
                           },

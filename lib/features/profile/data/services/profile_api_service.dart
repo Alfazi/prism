@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../models/following_response_model.dart';
 import '../models/user_posts_response_model.dart';
@@ -7,19 +6,25 @@ import '../models/profile_stats_model.dart';
 import '../../../auth/data/models/user_model.dart';
 
 class ProfileApiService {
+  final Dio dio;
+
+  ProfileApiService({required this.dio});
+
   Future<UserModel> getLoggedUser(String token) async {
     try {
-      final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.getUserUrl}'),
-        headers: ApiConstants.getHeaders(token: token),
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.getUserUrl}',
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return UserModel.fromJson(responseData['data']);
-      } else {
-        throw Exception('Failed to load user profile');
+      return UserModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load user profile',
+        );
       }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Error fetching user profile: $e');
     }
@@ -40,23 +45,28 @@ class ProfileApiService {
         'name': name,
         'username': username,
         'email': email,
-        if (profilePictureUrl != null) 'profilePictureUrl': profilePictureUrl,
-        if (phoneNumber != null) 'phoneNumber': phoneNumber,
-        if (bio != null) 'bio': bio,
-        if (website != null) 'website': website,
+        ...profilePictureUrl != null
+            ? {'profilePictureUrl': profilePictureUrl}
+            : {},
+        ...phoneNumber != null ? {'phoneNumber': phoneNumber} : {},
+        ...bio != null ? {'bio': bio} : {},
+        ...website != null ? {'website': website} : {},
       };
 
-      final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}${ApiConstants.updateProfileUrl}'),
-        headers: ApiConstants.getHeaders(token: token),
-        body: json.encode(body),
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.updateProfileUrl}',
+        data: body,
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to update profile');
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to update profile',
+        );
       }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Error updating profile: $e');
     }
@@ -68,19 +78,20 @@ class ProfileApiService {
     int page = 1,
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse(
-          '${ApiConstants.baseUrl}${ApiConstants.myFollowingUrl}?size=$size&page=$page',
-        ),
-        headers: ApiConstants.getHeaders(token: token),
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.myFollowingUrl}',
+        queryParameters: {'size': size, 'page': page},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return FollowingResponseModel.fromJson(data['data']);
-      } else {
-        throw Exception('Failed to load following');
+      return FollowingResponseModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load following',
+        );
       }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Error fetching following: $e');
     }
@@ -92,19 +103,20 @@ class ProfileApiService {
     int page = 1,
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse(
-          '${ApiConstants.baseUrl}${ApiConstants.myFollowersUrl}?size=$size&page=$page',
-        ),
-        headers: ApiConstants.getHeaders(token: token),
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.myFollowersUrl}',
+        queryParameters: {'size': size, 'page': page},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return FollowingResponseModel.fromJson(data['data']);
-      } else {
-        throw Exception('Failed to load followers');
+      return FollowingResponseModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load followers',
+        );
       }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Error fetching followers: $e');
     }
@@ -117,19 +129,20 @@ class ProfileApiService {
     int page = 1,
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse(
-          '${ApiConstants.baseUrl}${ApiConstants.userPostsUrl}/$userId?size=$size&page=$page',
-        ),
-        headers: ApiConstants.getHeaders(token: token),
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.userPostsUrl}/$userId',
+        queryParameters: {'size': size, 'page': page},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return UserPostsResponseModel.fromJson(data['data']);
-      } else {
-        throw Exception('Failed to load user posts');
+      return UserPostsResponseModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load user posts',
+        );
       }
+      throw Exception('Network error: ${e.message}');
     } catch (e) {
       throw Exception('Error fetching user posts: $e');
     }
@@ -154,6 +167,165 @@ class ProfileApiService {
       );
     } catch (e) {
       throw Exception('Error fetching profile stats: $e');
+    }
+  }
+
+  Future<UserModel> getUserById({
+    required String token,
+    required String userId,
+  }) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.getUserUrl}/$userId',
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
+      );
+
+      return UserModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(e.response?.data['message'] ?? 'Failed to load user');
+      }
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error fetching user: $e');
+    }
+  }
+
+  Future<FollowingResponseModel> getFollowingByUserId({
+    required String token,
+    required String userId,
+    int size = 10,
+    int page = 1,
+  }) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.followingByUserIdUrl}/$userId',
+        queryParameters: {'size': size, 'page': page},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
+      );
+
+      return FollowingResponseModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load following',
+        );
+      }
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error fetching following: $e');
+    }
+  }
+
+  Future<FollowingResponseModel> getFollowersByUserId({
+    required String token,
+    required String userId,
+    int size = 10,
+    int page = 1,
+  }) async {
+    try {
+      final response = await dio.get(
+        '${ApiConstants.baseUrl}${ApiConstants.followersByUserIdUrl}/$userId',
+        queryParameters: {'size': size, 'page': page},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
+      );
+
+      return FollowingResponseModel.fromJson(response.data['data']);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to load followers',
+        );
+      }
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error fetching followers: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> followUser({
+    required String token,
+    required String userIdFollow,
+  }) async {
+    try {
+      final response = await dio.post(
+        '${ApiConstants.baseUrl}${ApiConstants.followUrl}',
+        data: {'userIdFollow': userIdFollow},
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(e.response?.data['message'] ?? 'Failed to follow user');
+      }
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error following user: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> unfollowUser({
+    required String token,
+    required String userId,
+  }) async {
+    try {
+      final response = await dio.delete(
+        '${ApiConstants.baseUrl}${ApiConstants.unfollowUrl}/$userId',
+        options: Options(headers: ApiConstants.getHeaders(token: token)),
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      if (e.response != null) {
+        throw Exception(
+          e.response?.data['message'] ?? 'Failed to unfollow user',
+        );
+      }
+      throw Exception('Network error: ${e.message}');
+    } catch (e) {
+      throw Exception('Error unfollowing user: $e');
+    }
+  }
+
+  Future<bool> isFollowingUser({
+    required String token,
+    required String userId,
+  }) async {
+    try {
+      // Fetch following list with a large page size to check
+      // We'll check up to 1000 following users for efficiency
+      const int pageSize = 100;
+      int currentPage = 1;
+
+      while (true) {
+        final response = await getMyFollowing(
+          token: token,
+          size: pageSize,
+          page: currentPage,
+        );
+
+        // Check if the user is in this page
+        final isInPage = response.users.any((user) => user.id == userId);
+        if (isInPage) {
+          return true;
+        }
+
+        // If we've checked all pages, user is not following
+        if (currentPage >= response.totalPages) {
+          return false;
+        }
+
+        // Move to next page
+        currentPage++;
+
+        // Safety check: don't check more than 10 pages (1000 users)
+        if (currentPage > 10) {
+          return false;
+        }
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

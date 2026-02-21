@@ -12,6 +12,7 @@ import '../../../story/presentation/widgets/story_rail.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
+import '../../../profile/presentation/pages/user_profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -346,7 +347,13 @@ class _HomePageState extends State<HomePage> {
                                   );
                                 },
                                 onUserTap: () {
-                                  // TODO: Navigate to user profile
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          UserProfilePage(userId: post.user.id),
+                                    ),
+                                  );
                                 },
                               );
                             },

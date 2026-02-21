@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/services/feed_api_service.dart';
+import '../../data/models/post_model.dart';
 import '../../../auth/data/services/auth_local_service.dart';
 import 'feed_event.dart';
 import 'feed_state.dart';
@@ -32,21 +33,45 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
         return;
       }
 
-      final response = await feedApiService.getFollowingPosts(
-        token: token,
-        size: 10,
-        page: 1,
-      );
+      // Fetch pages until we get posts with images or run out of pages
+      List<PostModel> allPostsWithImages = [];
+      int currentPage = 1;
+      int totalPages = 1;
+      const int maxPagesToFetch = 10; // Safety limit
+
+      while (allPostsWithImages.isEmpty &&
+          currentPage <= totalPages &&
+          currentPage <= maxPagesToFetch) {
+        final response = await feedApiService.getFollowingPosts(
+          token: token,
+          size: 10,
+          page: currentPage,
+        );
+
+        totalPages = response.totalPages;
+
+        // Filter out posts without images and reverse to show latest first
+        final postsWithImages = response.posts
+            .where((post) => post.imageUrl.isNotEmpty)
+            .toList()
+            .reversed
+            .toList();
+
+        if (postsWithImages.isNotEmpty) {
+          allPostsWithImages = postsWithImages;
+          break;
+        }
+
+        currentPage++;
+      }
 
       emit(
         state.copyWith(
           status: FeedStatus.success,
-          posts: response.posts,
-          currentPage: response.currentPage,
-          totalPages: response.totalPages,
-          hasMorePosts:
-              response.totalPages > 0 &&
-              response.currentPage < response.totalPages,
+          posts: allPostsWithImages,
+          currentPage: currentPage,
+          totalPages: totalPages,
+          hasMorePosts: currentPage < totalPages,
         ),
       );
     } catch (e) {
@@ -73,24 +98,44 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       final token = await authLocalService.getToken();
       if (token == null) return;
 
-      final nextPage = state.currentPage + 1;
-      final response = await feedApiService.getFollowingPosts(
-        token: token,
-        size: 10,
-        page: nextPage,
-      );
+      // Fetch pages until we get posts with images or run out of pages
+      List<PostModel> newPostsWithImages = [];
+      int currentPage = state.currentPage + 1;
+      const int maxPagesToFetch = 10; // Safety limit
 
-      final updatedPosts = [...state.posts, ...response.posts];
+      while (newPostsWithImages.isEmpty &&
+          currentPage <= state.totalPages &&
+          currentPage <= state.currentPage + maxPagesToFetch) {
+        final response = await feedApiService.getFollowingPosts(
+          token: token,
+          size: 10,
+          page: currentPage,
+        );
+
+        // Filter out posts without images and reverse to show latest first
+        final postsWithImages = response.posts
+            .where((post) => post.imageUrl.isNotEmpty)
+            .toList()
+            .reversed
+            .toList();
+
+        if (postsWithImages.isNotEmpty) {
+          newPostsWithImages = postsWithImages;
+          break;
+        }
+
+        currentPage++;
+      }
+
+      final updatedPosts = [...state.posts, ...newPostsWithImages];
 
       emit(
         state.copyWith(
           status: FeedStatus.success,
           posts: updatedPosts,
-          currentPage: response.currentPage,
-          totalPages: response.totalPages,
-          hasMorePosts:
-              response.posts.isNotEmpty &&
-              response.currentPage < response.totalPages,
+          currentPage: currentPage,
+          totalPages: state.totalPages,
+          hasMorePosts: currentPage < state.totalPages,
         ),
       );
     } catch (e) {

@@ -27,12 +27,15 @@ class _MainScaffoldState extends State<MainScaffold> {
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         decoration: BoxDecoration(
-          color: const Color(0xFF0A0A0C).withOpacity(0.6),
+          color: const Color(0xFF0A0A0C).withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withValues(alpha: 0.5),
               blurRadius: 30,
               offset: const Offset(0, -4),
             ),
@@ -45,7 +48,10 @@ class _MainScaffoldState extends State<MainScaffold> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Colors.white.withOpacity(0.05), Colors.transparent],
+                colors: [
+                  Colors.white.withValues(alpha: 0.05),
+                  Colors.transparent,
+                ],
               ),
             ),
             child: BottomNavigationBar(
@@ -92,7 +98,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFFFF0055).withOpacity(0.4),
+                          color: const Color(0xFFFF0055).withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),

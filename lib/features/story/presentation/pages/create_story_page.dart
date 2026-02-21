@@ -177,7 +177,7 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
                     borderRadius: BorderRadius.circular(24),
                     color: Colors.grey.shade900,
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.1),
+                      color: Colors.white.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),
@@ -190,7 +190,7 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
                               Image.file(_selectedImage!, fit: BoxFit.cover),
                               if (_isUploading)
                                 Container(
-                                  color: Colors.black.withOpacity(0.5),
+                                  color: Colors.black.withValues(alpha: 0.5),
                                   child: const Center(
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -242,10 +242,10 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
               // Caption Input
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade900.withOpacity(0.5),
+                  color: Colors.grey.shade900.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -277,10 +277,10 @@ class _CreateStoryPageState extends State<CreateStoryPage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF135bec).withOpacity(0.1),
+                  color: const Color(0xFF135bec).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF135bec).withOpacity(0.3),
+                    color: const Color(0xFF135bec).withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),

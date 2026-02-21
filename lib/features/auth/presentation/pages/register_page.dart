@@ -95,7 +95,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFF135BEC).withOpacity(0.1),
+                      const Color(0xFF135BEC).withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                   ),
@@ -112,7 +112,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      const Color(0xFFFF0050).withOpacity(0.05),
+                      const Color(0xFFFF0050).withValues(alpha: 0.05),
                       Colors.transparent,
                     ],
                   ),
@@ -131,8 +131,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     center: Alignment.topRight,
                     radius: 1.0,
                     colors: [
-                      const Color(0xFF00F2EA).withOpacity(0.15),
-                      const Color(0xFF135BEC).withOpacity(0.05),
+                      const Color(0xFF00F2EA).withValues(alpha: 0.15),
+                      const Color(0xFF135BEC).withValues(alpha: 0.05),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.3, 0.6],

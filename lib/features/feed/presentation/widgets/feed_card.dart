@@ -22,12 +22,15 @@ class FeedCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF14141A).withOpacity(0.6),
+        color: const Color(0xFF14141A).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.08), width: 1),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 30,
             offset: const Offset(0, 4),
           ),
@@ -46,13 +49,15 @@ class FeedCard extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 20,
                     backgroundColor: Colors.grey.shade800,
-                    backgroundImage: post.user.profilePictureUrl != null &&
+                    backgroundImage:
+                        post.user.profilePictureUrl != null &&
                             post.user.profilePictureUrl!.isNotEmpty
                         ? CachedNetworkImageProvider(
                             post.user.profilePictureUrl!,
                           )
                         : null,
-                    child: post.user.profilePictureUrl == null ||
+                    child:
+                        post.user.profilePictureUrl == null ||
                             post.user.profilePictureUrl!.isEmpty
                         ? Text(
                             post.user.name[0].toUpperCase(),
@@ -93,7 +98,7 @@ class FeedCard extends StatelessWidget {
                 // IconButton(
                 //   icon: const Icon(Icons.more_horiz, color: Colors.grey),
                 //   onPressed: () {
-                //     
+                //
                 //   },
                 // ),
               ],
@@ -112,8 +117,11 @@ class FeedCard extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.image_not_supported,
-                                size: 48, color: Colors.grey.shade700),
+                            Icon(
+                              Icons.image_not_supported,
+                              size: 48,
+                              color: Colors.grey.shade700,
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               'No image',
@@ -159,7 +167,7 @@ class FeedCard extends StatelessWidget {
                     post.isLike ? Icons.favorite : Icons.favorite_border,
                     color: post.isLike
                         ? const Color(0xFFFF0050)
-                        : Colors.white.withOpacity(0.8),
+                        : Colors.white.withValues(alpha: 0.8),
                   ),
                   onPressed: onLikeToggle,
                 ),
@@ -167,7 +175,7 @@ class FeedCard extends StatelessWidget {
                 IconButton(
                   icon: Icon(
                     Icons.chat_bubble_outline,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                   onPressed: onComment,
                 ),

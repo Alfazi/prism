@@ -82,7 +82,7 @@ class _StoryCircleElement extends ComponentElement {
                                 : (widget.story?.user.profilePictureUrl ?? ''),
                           ),
                           fit: BoxFit.cover,
-                          onError: (_, __) {},
+                          onError: (_, _) {},
                         ),
                         color: Colors.grey.shade800,
                       ),
@@ -134,7 +134,7 @@ class _StoryCircleElement extends ComponentElement {
                 fontWeight: FontWeight.w500,
                 color: isViewed
                     ? Colors.grey.shade500
-                    : Colors.white.withOpacity(0.9),
+                    : Colors.white.withValues(alpha: 0.9),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

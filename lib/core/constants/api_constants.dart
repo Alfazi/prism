@@ -43,6 +43,10 @@ class ApiConstants {
   static const String myFollowingUrl = '/my-following';
   static const String myFollowersUrl = '/my-followers';
   static const String userPostsUrl = '/users-post';
+  static const String followUrl = '/follow';
+  static const String unfollowUrl = '/unfollow';
+  static const String followingByUserIdUrl = '/following';
+  static const String followersByUserIdUrl = '/followers';
 
   // Headers
   static Map<String, String> getHeaders({String? token}) {

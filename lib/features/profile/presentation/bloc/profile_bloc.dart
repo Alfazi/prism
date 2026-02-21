@@ -92,7 +92,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       }
     } catch (e) {
       // Silently fail for stats - the UI will show 0s
-      print('Error loading stats: $e');
     }
   }
 
@@ -110,8 +109,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         page: event.page,
       );
 
-      // Reverse posts to show latest first
-      final reversedPosts = response.posts.reversed.toList();
+      // Filter out posts without images and reverse to show latest first
+      final postsWithImages = response.posts
+          .where((post) => post.imageUrl.isNotEmpty)
+          .toList();
+      final reversedPosts = postsWithImages.reversed.toList();
 
       emit(
         state.copyWith(
@@ -122,7 +124,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ),
       );
     } catch (e) {
-      print('Error loading posts: $e');
+      // Silently fail
     }
   }
 
@@ -143,8 +145,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         page: nextPage,
       );
 
-      // Reverse new posts to show latest first
-      final reversedPosts = response.posts.reversed.toList();
+      // Filter out posts without images and reverse new posts to show latest first
+      final postsWithImages = response.posts
+          .where((post) => post.imageUrl.isNotEmpty)
+          .toList();
+      final reversedPosts = postsWithImages.reversed.toList();
 
       emit(
         state.copyWith(
@@ -154,7 +159,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ),
       );
     } catch (e) {
-      print('Error loading more posts: $e');
+      // Silently fail
     }
   }
 

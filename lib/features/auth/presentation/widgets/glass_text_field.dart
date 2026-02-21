@@ -38,14 +38,14 @@ class _GlassTextFieldState extends State<GlassTextField> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: _isFocused
-                ? Colors.white.withOpacity(0.3)
-                : Colors.white.withOpacity(0.1),
+                ? Colors.white.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.1),
             width: 1,
           ),
           boxShadow: _isFocused
               ? [
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     blurRadius: 15,
                   ),
                 ]
@@ -66,7 +66,7 @@ class _GlassTextFieldState extends State<GlassTextField> {
             ),
             suffixIcon: widget.suffixIcon,
             filled: true,
-            fillColor: Colors.white.withOpacity(0.03),
+            fillColor: Colors.white.withValues(alpha: 0.03),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

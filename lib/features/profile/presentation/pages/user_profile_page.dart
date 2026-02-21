@@ -1,48 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import '../bloc/profile_bloc.dart';
-import '../bloc/profile_event.dart';
-import '../bloc/profile_state.dart';
+import '../bloc/user_profile_bloc.dart';
+import '../bloc/user_profile_event.dart';
+import '../bloc/user_profile_state.dart';
 import '../../data/models/profile_stats_model.dart';
-import 'edit_profile_page.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../auth/presentation/pages/login_page.dart';
 import '../../../feed/presentation/pages/comments_page.dart';
-import '../../../feed/presentation/pages/edit_post_page.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class UserProfilePage extends StatefulWidget {
+  final String userId;
+
+  const UserProfilePage({super.key, required this.userId});
 
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<UserProfilePage> createState() => _UserProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  late final ProfileBloc _profileBloc;
+class _UserProfilePageState extends State<UserProfilePage> {
+  late final UserProfileBloc _userProfileBloc;
   final _scrollController = ScrollController();
   bool _isLoadingMore = false;
 
   @override
   void initState() {
     super.initState();
-    _profileBloc = GetIt.instance<ProfileBloc>()..add(const LoadProfile());
+    _userProfileBloc = GetIt.instance<UserProfileBloc>()
+      ..add(LoadUserProfile(widget.userId));
     _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _profileBloc.close();
+    _userProfileBloc.close();
     super.dispose();
   }
 
   void _onScroll() {
-    if (_isBottom && !_isLoadingMore && _profileBloc.state.user?.id != null) {
+    if (_isBottom && !_isLoadingMore) {
       _isLoadingMore = true;
-      _profileBloc.add(LoadMoreUserPosts(_profileBloc.state.user!.id!));
+      _userProfileBloc.add(LoadMoreUserProfilePosts(widget.userId));
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           setState(() {
@@ -63,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _profileBloc,
+      value: _userProfileBloc,
       child: Scaffold(
         backgroundColor: const Color(0xFF050505),
         body: Container(
@@ -77,9 +74,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          child: BlocBuilder<ProfileBloc, ProfileState>(
+          child: BlocBuilder<UserProfileBloc, UserProfileState>(
             builder: (context, state) {
-              if (state.status == ProfileStatus.loading) {
+              if (state.status == UserProfileStatus.loading) {
                 return const Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -89,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 );
               }
 
-              if (state.status == ProfileStatus.error) {
+              if (state.status == UserProfileStatus.error) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
               return RefreshIndicator(
                 onRefresh: () async {
-                  _profileBloc.add(const RefreshProfile());
+                  _userProfileBloc.add(RefreshUserProfile(widget.userId));
                   await Future.delayed(const Duration(seconds: 1));
                 },
                 color: const Color(0xFF00F2EA),
@@ -208,13 +205,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             const SizedBox(height: 24),
 
-                            // Edit Profile Button
-                            _buildEditProfileButton(context),
-
-                            const SizedBox(height: 12),
-
-                            // Logout Button
-                            _buildLogoutButton(context),
+                            // Follow/Unfollow Button
+                            _buildFollowButton(context, state),
 
                             const SizedBox(height: 24),
                           ],
@@ -319,7 +311,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               return _buildPostTile(
                                 imageUrl: post.imageUrl,
                                 postId: post.id,
-                                caption: post.caption,
                               );
                             },
                             childCount:
@@ -428,7 +419,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildEditProfileButton(BuildContext context) {
+  Widget _buildFollowButton(BuildContext context, UserProfileState state) {
     return SizedBox(
       width: double.infinity,
       child: Container(
@@ -436,152 +427,76 @@ class _ProfilePageState extends State<ProfilePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Colors.white.withValues(alpha: 0.1),
-              Colors.white.withValues(alpha: 0.02),
-            ],
+            colors: state.isFollowing
+                ? [
+                    Colors.white.withValues(alpha: 0.1),
+                    Colors.white.withValues(alpha: 0.02),
+                  ]
+                : [
+                    const Color(0xFF00F2EA).withValues(alpha: 0.3),
+                    const Color(0xFF00F2EA).withValues(alpha: 0.1),
+                  ],
           ),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: state.isFollowing
+                ? Colors.white.withValues(alpha: 0.1)
+                : const Color(0xFF00F2EA).withValues(alpha: 0.5),
             width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 10,
-            ),
-          ],
+          boxShadow: state.isFollowing
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 10,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: const Color(0xFF00F2EA).withValues(alpha: 0.3),
+                    blurRadius: 15,
+                  ),
+                ],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider.value(
-                    value: _profileBloc,
-                    child: const EditProfilePage(),
-                  ),
-                ),
-              );
-            },
+            onTap: state.isFollowLoading
+                ? null
+                : () {
+                    if (state.isFollowing) {
+                      _userProfileBloc.add(UnfollowUser(widget.userId));
+                    } else {
+                      _userProfileBloc.add(FollowUser(widget.userId));
+                    }
+                  },
             borderRadius: BorderRadius.circular(12),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                'Edit Profile',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLogoutButton(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state.status == AuthStatus.unauthenticated) {
-          // Navigate to login page and remove all previous routes
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-            (route) => false,
-          );
-        }
-      },
-      child: SizedBox(
-        width: double.infinity,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.red.withValues(alpha: 0.15),
-                Colors.red.withValues(alpha: 0.05),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: Colors.red.withValues(alpha: 0.3),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 10,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                // Show confirmation dialog
-                showDialog(
-                  context: context,
-                  builder: (dialogContext) => AlertDialog(
-                    backgroundColor: const Color(0xFF14141A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: Colors.white.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    title: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    content: const Text(
-                      'Are you sure you want to logout?',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogContext),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(color: Colors.grey.shade400),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(dialogContext);
-                          context.read<AuthBloc>().add(const LogoutRequested());
-                        },
-                        child: const Text(
-                          'Logout',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: state.isFollowLoading
+                  ? const Center(
+                      child: SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                );
-              },
-              borderRadius: BorderRadius.circular(12),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  'Logout',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
+                    )
+                  : Text(
+                      state.isFollowing ? 'Following' : 'Follow',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: state.isFollowing
+                            ? Colors.white
+                            : const Color(0xFF00F2EA),
+                      ),
+                    ),
             ),
           ),
         ),
@@ -589,11 +504,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildPostTile({
-    required String imageUrl,
-    required String postId,
-    required String caption,
-  }) {
+  Widget _buildPostTile({required String imageUrl, required String postId}) {
     return Container(
       decoration: BoxDecoration(color: Colors.grey.shade900),
       child: Stack(
@@ -620,127 +531,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 );
               },
-            ),
-          ),
-          // Menu button overlay
-          Positioned(
-            top: 4,
-            right: 4,
-            child: Material(
-              color: Colors.black.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(20),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () => _showPostOptions(postId, imageUrl, caption),
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  child: const Icon(
-                    Icons.more_vert,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPostOptions(String postId, String imageUrl, String caption) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF14141A),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade600,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: const Icon(Icons.edit, color: Color(0xFF00F2EA)),
-              title: const Text(
-                'Edit Post',
-                style: TextStyle(color: Colors.white),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditPostPage(
-                      postId: postId,
-                      currentImageUrl: imageUrl,
-                      currentCaption: caption,
-                      profileBloc: _profileBloc,
-                    ),
-                  ),
-                );
-              },
-            ),
-            Divider(color: Colors.white.withValues(alpha: 0.1)),
-            ListTile(
-              leading: const Icon(Icons.delete, color: Colors.red),
-              title: const Text(
-                'Delete Post',
-                style: TextStyle(color: Colors.red),
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                _showDeleteConfirmation(postId);
-              },
-            ),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(String postId) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: const Color(0xFF14141A),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        ),
-        title: const Text('Delete Post', style: TextStyle(color: Colors.white)),
-        content: const Text(
-          'Are you sure you want to delete this post? This action cannot be undone.',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey.shade400),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              _profileBloc.add(DeletePost(postId));
-              Navigator.pop(dialogContext);
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
             ),
           ),
         ],

@@ -41,12 +41,12 @@ class _GradientButtonState extends State<GradientButton> {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF00F2EA).withOpacity(0.3),
+                color: const Color(0xFF00F2EA).withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 0),
               ),
               BoxShadow(
-                color: const Color(0xFFFF0050).withOpacity(0.1),
+                color: const Color(0xFFFF0050).withValues(alpha: 0.1),
                 blurRadius: 40,
                 offset: const Offset(0, 0),
               ),

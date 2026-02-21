@@ -55,16 +55,15 @@ Aplikasi ini mencakup seluruh endpoint API yang disediakan:
 
 Berikut adalah rekaman layar penggunaan aplikasi Prism:
 
-xxxx (belum ada)
+[Video Demo Aplikasi](https://youtu.be/feA-Uxay64w)
 
 
 ## 🚀 Cara Menjalankan (Installation)
 
 1. **Clone Repository**
-   ```bash
-   git clone [https://github.com/Alfazi/prism](https://github.com/Alfazi/prism)
-   cd prism-photo-app
-
+```bash
+git clone [https://github.com/Alfazi/prism](https://github.com/Alfazi/prism)
+cd prism-photo-app
 ```
 
 2. **Install Dependencies**

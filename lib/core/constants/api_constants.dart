@@ -26,6 +26,10 @@ class ApiConstants {
   static const String likePostUrl = '/like';
   static const String unlikePostUrl = '/unlike';
 
+  // Comment endpoints
+  static const String createCommentUrl = '/create-comment';
+  static const String deleteCommentUrl = '/delete-comment';
+
   // Story endpoints
   static const String followingStoryUrl = '/following-story';
   static const String createStoryUrl = '/create-story';

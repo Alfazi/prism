@@ -7,8 +7,10 @@ import '../../features/auth/data/services/auth_local_service.dart';
 import '../../features/auth/data/services/upload_service.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/feed/data/services/feed_api_service.dart';
+import '../../features/feed/data/services/comment_api_service.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
 import '../../features/feed/presentation/bloc/explore_bloc.dart';
+import '../../features/feed/presentation/bloc/comment_bloc.dart';
 import '../../features/story/data/services/story_api_service.dart';
 import '../../features/story/presentation/bloc/story_bloc.dart';
 
@@ -41,6 +43,10 @@ Future<void> setupDependencyInjection() async {
     () => FeedApiService(dio: getIt<Dio>()),
   );
 
+  getIt.registerLazySingleton<CommentApiService>(
+    () => CommentApiService(dio: getIt<Dio>()),
+  );
+
   getIt.registerLazySingleton<StoryApiService>(
     () => StoryApiService(dio: getIt<Dio>()),
   );
@@ -68,6 +74,13 @@ Future<void> setupDependencyInjection() async {
     () => ExploreBloc(
       feedApiService: getIt<FeedApiService>(),
       authLocalService: getIt<AuthLocalService>(),
+    ),
+  );
+
+  getIt.registerFactory<CommentBloc>(
+    () => CommentBloc(
+      commentApiService: getIt<CommentApiService>(),
+      secureStorage: getIt<FlutterSecureStorage>(),
     ),
   );
 

@@ -5,6 +5,7 @@ import '../bloc/feed_bloc.dart';
 import '../bloc/feed_event.dart';
 import '../bloc/feed_state.dart';
 import '../widgets/feed_card.dart';
+import 'comments_page.dart';
 import '../../../story/presentation/bloc/story_bloc.dart';
 import '../../../story/presentation/bloc/story_event.dart';
 import '../../../story/presentation/widgets/story_rail.dart';
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
               center: const Alignment(0, -0.8),
               radius: 1.5,
               colors: [
-                const Color(0xFF135bec).withOpacity(0.15),
+                const Color(0xFF135bec).withValues(alpha: 0.15),
                 Colors.transparent,
               ],
             ),
@@ -248,7 +249,13 @@ class _HomePageState extends State<HomePage> {
                                   );
                                 },
                                 onComment: () {
-                                  // TODO: Navigate to comments page
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          CommentsPage(postId: post.id),
+                                    ),
+                                  );
                                 },
                                 onUserTap: () {
                                   // TODO: Navigate to user profile

@@ -5,6 +5,7 @@ import '../bloc/explore_bloc.dart';
 import '../bloc/explore_event.dart';
 import '../bloc/explore_state.dart';
 import '../widgets/feed_card.dart';
+import 'comments_page.dart';
 
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
@@ -21,7 +22,8 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   void initState() {
     super.initState();
-    _exploreBloc = GetIt.instance<ExploreBloc>()..add(const FetchExplorePosts());
+    _exploreBloc = GetIt.instance<ExploreBloc>()
+      ..add(const FetchExplorePosts());
     _scrollController.addListener(_onScroll);
   }
 
@@ -66,7 +68,7 @@ class _ExplorePageState extends State<ExplorePage> {
               center: const Alignment(0, -0.8),
               radius: 1.5,
               colors: [
-                const Color(0xFF135bec).withOpacity(0.15),
+                const Color(0xFF135bec).withValues(alpha: 0.15),
                 Colors.transparent,
               ],
             ),
@@ -228,7 +230,13 @@ class _ExplorePageState extends State<ExplorePage> {
                                 );
                               },
                               onComment: () {
-                                // TODO: Navigate to comments page
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        CommentsPage(postId: post.id),
+                                  ),
+                                );
                               },
                               onUserTap: () {
                                 // TODO: Navigate to user profile

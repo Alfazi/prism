@@ -9,6 +9,8 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/feed/data/services/feed_api_service.dart';
 import '../../features/feed/presentation/bloc/feed_bloc.dart';
 import '../../features/feed/presentation/bloc/explore_bloc.dart';
+import '../../features/story/data/services/story_api_service.dart';
+import '../../features/story/presentation/bloc/story_bloc.dart';
 
 final getIt = GetIt.instance;
 
@@ -39,6 +41,10 @@ Future<void> setupDependencyInjection() async {
     () => FeedApiService(dio: getIt<Dio>()),
   );
 
+  getIt.registerLazySingleton<StoryApiService>(
+    () => StoryApiService(dio: getIt<Dio>()),
+  );
+
   getIt.registerLazySingleton<UploadService>(
     () => UploadService(dio: getIt<Dio>()),
   );
@@ -61,6 +67,13 @@ Future<void> setupDependencyInjection() async {
   getIt.registerFactory<ExploreBloc>(
     () => ExploreBloc(
       feedApiService: getIt<FeedApiService>(),
+      authLocalService: getIt<AuthLocalService>(),
+    ),
+  );
+
+  getIt.registerFactory<StoryBloc>(
+    () => StoryBloc(
+      storyApiService: getIt<StoryApiService>(),
       authLocalService: getIt<AuthLocalService>(),
     ),
   );

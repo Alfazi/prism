@@ -90,12 +90,12 @@ class FeedCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.more_horiz, color: Colors.grey),
-                  onPressed: () {
-                    // TODO: Show post options
-                  },
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.more_horiz, color: Colors.grey),
+                //   onPressed: () {
+                //     
+                //   },
+                // ),
               ],
             ),
           ),

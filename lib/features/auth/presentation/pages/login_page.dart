@@ -60,7 +60,6 @@ class _LoginPageState extends State<LoginPage> {
                 backgroundColor: Colors.green,
               ),
             );
-            // TODO: Navigate to home page
             // Navigator.of(context).pushReplacementNamed('/home');
           }
         },

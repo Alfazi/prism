@@ -26,6 +26,13 @@ class ApiConstants {
   static const String likePostUrl = '/like';
   static const String unlikePostUrl = '/unlike';
 
+  // Story endpoints
+  static const String followingStoryUrl = '/following-story';
+  static const String createStoryUrl = '/create-story';
+  static const String deleteStoryUrl = '/delete-story';
+  static const String getStoryUrl = '/story';
+  static const String storyViewsUrl = '/story-views';
+
   // Headers
   static Map<String, String> getHeaders({String? token}) {
     final headers = {'Content-Type': 'application/json', 'apiKey': apiKey};

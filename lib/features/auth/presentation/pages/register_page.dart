@@ -76,7 +76,6 @@ class _RegisterPageState extends State<RegisterPage> {
             );
             // After successful registration and auto-login, go back to login page
             // or navigate to home
-            // TODO: Navigate to home page
             Navigator.of(context).pop();
           }
         },
